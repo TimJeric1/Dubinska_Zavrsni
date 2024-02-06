@@ -59,60 +59,11 @@ test_target <- as.factor(test_target)
 # Perform k-nearest neighbors classification with k = 3
 predicted_classes <- knn(train = train_features, test = test_features, cl = train_target, k = 3)
 
-# Create a dataframe combining test data with predicted classes
-results <- data.frame(data_test, Predicted_Quality = predicted_classes)
-
-# Visualize predictions
-ggplot(results, aes(x = Size, y = Weight, color = Predicted_Quality, shape = Quality)) +
-  geom_point(size = 3) +
-  scale_color_manual(values = c("red", "blue"), labels = c("Bad", "Good")) +
-  scale_shape_manual(values = c(4, 16), labels = c("Bad", "Good")) +
-  labs(title = "K-Nearest Neighbors Predictions", x = "Size", y = "Weight", color = "Predicted Quality", shape = "True Quality") +
-  theme_minimal()
-
-
-
-
-
-
-# 2. Metoda potpornih vektora
-install.packages("e1071")
-install.packages("ggplot2")
-library(e1071)
-library(ggplot2)
-
-svm_data = data
-svm_data$Quality = ifelse(svm_data$Quality == "good", 1, 0)
-
-# Dijeljenje podataka na testne i trening
-indexes = createDataPartition(svm_data$Quality, p = 0.8, list = FALSE)
-data_train = svm_data[indexes, ]
-data_test = svm_data[-indexes, ]
-
-
-# Define features and target variable for training and test sets
-train_features <- data_train[, -ncol(data_train)]
-train_target <- data_train$Quality
-test_features <- data_test[, -ncol(data_test)]
-test_target <- data_test$Quality
-
-# Convert target variable to factor
-train_target <- as.factor(train_target)
-test_target <- as.factor(test_target)
-
-# Train SVM model on training data
-svm_model <- svm(Quality ~ ., data = data_train, kernel = "radial")
-
-# Make predictions on test data
-predicted_classes <- predict(svm_model, newdata = test_features)
-predicted_classes = ifelse(predicted_classes > 0.5 , 1, 0)
-conf_matrix = confusionMatrix(data = factor(predicted_classes), reference = factor(test_target))
+conf_matrix = confusionMatrix(factor(predicted_classes), test_target)
 conf_matrix
-
 
 mosaicplot(conf_matrix$table, main = "Confusion Matrix Mosaic Plot", 
            color = terrain.colors(10), shade = TRUE)
-
 
 
 # 3. Bagging
@@ -173,29 +124,6 @@ fit
 table(fit, data$Quality)
 
 rect.hclust(hclust_result,k=2,border="green")
-
-
-# 5. DBScan
-
-# Install and load the dbscan package
-install.packages("dbscan")
-library(dbscan)
-
-kNNdistplot(data[, -ncol(data)], k=5)
-
-dbscan_result <- dbscan(data[, -ncol(data)], eps = 2.6, minPts = 3)
-
-
-# Plot the clusters
-plot(data[, c("Size", "Weight")], col = dbscan_result$cluster + 1, pch = dbscan_result$cluster + 1,
-     main = "DBSCAN Clustering", xlab = "Size", ylab = "Weight")
-legend("topright", legend = unique(dbscan_result$cluster), pch = unique(dbscan_result$cluster) + 1, 
-       col = unique(dbscan_result$cluster) + 1, title = "Cluster")
-
-
-
-
-
 
 
 
