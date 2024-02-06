@@ -79,6 +79,12 @@ indexes = createDataPartition(data$Quality, p = 0.8, list = FALSE)
 data_train = data[indexes, ]
 data_test = data[-indexes, ]
 
+# Define features and target variable for training and test sets
+train_features <- data_train[, -ncol(data_train)]
+train_target <- data_train$Quality
+test_features <- data_test[, -ncol(data_test)]
+test_target <- data_test$Quality
+
 # Train bagged model
 bagged_model <- bagging(Quality ~ ., data = data_train)
 
@@ -142,6 +148,7 @@ rect.hclust(hclust_result,k = 6, border = "blue")
 # Plotanje lijevog dijela dendograma da se lakše vidi
 plot(hcd, main = "Hierarchical Clustering Dendrogram", xlab = "Samples", ylab = "Height", 
      nodePar = nodePar, edgePar = list(col = 2:3, lwd = 2:1), xlim = c(1, 19), ylim = c(0,9))
+
 
 
 
