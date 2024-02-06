@@ -106,11 +106,12 @@ svm_model <- svm(Quality ~ ., data = data_train, kernel = "radial")
 # Make predictions on test data
 predicted_classes <- predict(svm_model, newdata = test_features)
 predicted_classes = ifelse(predicted_classes > 0.5 , 1, 0)
-confusionMatrix(data = factor(predicted_classes), reference = factor(test_target))
+conf_matrix = confusionMatrix(data = factor(predicted_classes), reference = factor(test_target))
+conf_matrix
 
-# Add predicted classes to test dataset
-data_test$Predicted_Quality <- predicted_classes
 
+mosaicplot(conf_matrix$table, main = "Confusion Matrix Mosaic Plot", 
+           color = terrain.colors(10), shade = TRUE)
 
 
 
@@ -138,7 +139,12 @@ print(bagged_model)
 predicted_classes <- predict(bagged_model, newdata = test_features)
 predicted_classes = ifelse(predicted_classes > 0.5 , 1, 0)
 # Evaluate the performance of the model
-confusionMatrix(data = factor(predicted_classes), reference = factor(test_target))
+conf_matrix = confusionMatrix(data = factor(predicted_classes), reference = factor(test_target))
+conf_matrix
+
+mosaicplot(conf_matrix$table, main = "Confusion Matrix Mosaic Plot", 
+           color = terrain.colors(10), shade = TRUE)
+
 
 
 # 4. Učenje asocijacijskih pravila
@@ -169,7 +175,7 @@ hclust_result <- hclust(distance_matrix, method = "complete")  # Perform hierarc
 # Plot the dendrogram
 plot(hclust_result, main = "Hierarchical Clustering Dendrogram", xlab = "Samples", sub = NULL,
      ylab = "Distance", labels = data$Quality)
-fit <- cutree(hclust_result, k = 2)
+fit <- cutree(hclust_result, k = 6)
 fit
 table(fit, data$Quality)
 
