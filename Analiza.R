@@ -115,7 +115,7 @@ rules <- apriori(transactions, parameter = list(support = 0.1, confidence = 0.5)
 rules <- sort(rules, by="confidence", decreasing=TRUE)
 rules <- head(rules, n=10)
 
-# Print the rules
+# Ispis pravila
 inspect(rules)
 
 
