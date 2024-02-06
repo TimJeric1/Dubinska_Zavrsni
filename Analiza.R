@@ -72,8 +72,14 @@ mosaicplot(conf_matrix$table, main = "Confusion Matrix Mosaic Plot",
 library(caret)
 library(ipred)
 
+# Dijeljenje podataka na testne i trening
+data$Quality <- as.factor(data$Quality)
+indexes = createDataPartition(data$Quality, p = 0.8, list = FALSE)
+data_train = data[indexes, ]
+data_test = data[-indexes, ]
+
 # Train bagged model
-bagged_model <- bagging(target_variable ~ ., data = training_data)
+bagged_model <- bagging(Quality ~ ., data = data_train)
 
 # Get feature importance
 importance <- varImp(bagged_model)
@@ -81,7 +87,7 @@ importance
 
 # Make predictions on the test set
 predicted_classes <- predict(bagged_model, newdata = test_features)
-predicted_classes = ifelse(predicted_classes > 0.5 , 1, 0)
+#predicted_classes = ifelse(predicted_classes > 0.5 , 1, 0)
 # Evaluate the performance of the model
 conf_matrix = confusionMatrix(data = factor(predicted_classes), reference = factor(test_target))
 conf_matrix
@@ -116,14 +122,26 @@ inspect(rules)
 distance_matrix <- dist(data[, -ncol(data)])  # Compute distance matrix
 hclust_result <- hclust(distance_matrix, method = "complete")  # Perform hierarchical clustering
 
-# Plot the dendrogram
-plot(hclust_result, main = "Hierarchical Clustering Dendrogram", xlab = "Samples", sub = NULL,
-     ylab = "Distance", labels = data$Quality)
-fit <- cutree(hclust_result, k = 6)
-fit
-table(fit, data$Quality)
+# Pretvaranje hclust-a u dendogram klasu
+hcd <- as.dendrogram(hclust_result)
 
-rect.hclust(hclust_result,k=2,border="green")
+#Lista parametara za plotanje
+nodePar <- list(lab.cex = 0.6, pch = c(NA, 19), 
+                cex = 0.8, col = "cyan")
+
+# Plotanje cijelog dendograma
+plot(hcd, main = "Hierarchical Clustering Dendrogram", xlab = "Samples", ylab = "Height", 
+     nodePar = nodePar, edgePar = list(col = 2:3, lwd = 2:1))
+
+fit <- cutree(hclust_result, k = 6)
+#fit
+table(fit, data$Quality)
+rect.hclust(hclust_result,k = 6, border = "blue")
+
+# Plotanje lijevog dijela dendograma da se lakše vidi
+plot(hcd, main = "Hierarchical Clustering Dendrogram", xlab = "Samples", ylab = "Height", 
+     nodePar = nodePar, edgePar = list(col = 2:3, lwd = 2:1), xlim = c(1, 19), ylim = c(0,9))
+
 
 
 
