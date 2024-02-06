@@ -119,21 +119,14 @@ mosaicplot(conf_matrix$table, main = "Confusion Matrix Mosaic Plot",
 
 # Load the required library
 library(caret)
+library(ipred)
 
-# Define the training control for bagging
-ctrl <- trainControl(method = "repeatedcv",  # 10-fold cross-validation
-                     number = 10,            # number of folds
-                     repeats = 3,            # repeated 3 times
-                     search = "grid")        # use grid search for tuning
+# Train bagged model
+bagged_model <- bagging(target_variable ~ ., data = training_data)
 
-# Train the Bagged Decision Tree model
-bagged_model <- train(Quality ~ .,               # formula
-                      data = data_train,        # training data
-                      method = "treebag",       # Bagging with decision trees
-                      trControl = ctrl)         # training control
-
-# Print the model
-print(bagged_model)
+# Get feature importance
+importance <- varImp(bagged_model)
+importance
 
 # Make predictions on the test set
 predicted_classes <- predict(bagged_model, newdata = test_features)
