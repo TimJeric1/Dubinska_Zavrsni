@@ -47,17 +47,16 @@ data_train = data[indexes, ]
 data_test = data[-indexes, ]
 
 
-# Define features and target variable for training and test sets
+# Definiranje prediktora i ciljne varijable za trening i test skupove
 train_features <- data_train[, -ncol(data_train)]
 train_target <- data_train$Quality
 test_features <- data_test[, -ncol(data_test)]
 test_target <- data_test$Quality
 
-# Convert target variable to factor
 train_target <- as.factor(train_target)
 test_target <- as.factor(test_target)
 
-# Perform k-nearest neighbors classification with k = 3
+# Klasifikacija najblizih susjeda,  k = 3
 predicted_classes <- knn(train = train_features, test = test_features, cl = train_target, k = 3)
 
 conf_matrix = confusionMatrix(predicted_classes, test_target)
@@ -69,33 +68,31 @@ mosaicplot(conf_matrix$table, main = "Confusion Matrix Mosaic Plot",
 
 # 3. Bagging
 
-# Load the required library
 library(caret)
 library(ipred)
 
 # Dijeljenje podataka na testne i trening
-
 indexes = createDataPartition(data$Quality, p = 0.8, list = FALSE)
 data_train = data[indexes, ]
 data_test = data[-indexes, ]
 
-# Define features and target variable for training and test sets
+
 train_features <- data_train[, -ncol(data_train)]
 train_target <- data_train$Quality
 test_features <- data_test[, -ncol(data_test)]
 test_target <- data_test$Quality
 
-# Train bagged model
+# Treniranje modela
 bagged_model <- bagging(Quality ~ ., data = data_train)
 
-# Get feature importance
+# Važnost prediktora
 importance <- varImp(bagged_model)
 importance
 
-# Make predictions on the test set
+
 predicted_classes <- predict(bagged_model, newdata = test_features)
 #predicted_classes = ifelse(predicted_classes > 0.5 , 1, 0)
-# Evaluate the performance of the model
+# Matrica zabune
 conf_matrix = confusionMatrix(data = predicted_classes, reference = test_target)
 conf_matrix
 
@@ -107,14 +104,13 @@ mosaicplot(conf_matrix$table, main = "Confusion Matrix Mosaic Plot",
 # 4. Učenje asocijacijskih pravila
 install.packages("arules")
 
-# Load the required library
 library(arules)
 
-# Create a transactions object
+# Pretvaranje u tip transactions
 transactions <- as(as.matrix(binary_data), "transactions")
 
 
-# Mine association rules
+# Učenje pravila algoritmom apriori
 rules <- apriori(transactions, parameter = list(support = 0.1, confidence = 0.5))
 rules <- sort(rules, by="confidence", decreasing=TRUE)
 rules <- head(rules, n=10)
@@ -125,9 +121,8 @@ inspect(rules)
 
 # 5. Hijerarhijsko grupianje
 
-# Perform hierarchical clustering
-distance_matrix <- dist(data[, -ncol(data)])  # Compute distance matrix
-hclust_result <- hclust(distance_matrix, method = "complete")  # Perform hierarchical clustering
+distance_matrix <- dist(data[, -ncol(data)])
+hclust_result <- hclust(distance_matrix, method = "complete")
 
 # Pretvaranje hclust-a u dendogram klasu
 hcd <- as.dendrogram(hclust_result)
@@ -148,9 +143,3 @@ rect.hclust(hclust_result,k = 6, border = "blue")
 # Plotanje lijevog dijela dendograma da se lakše vidi
 plot(hcd, main = "Hierarchical Clustering Dendrogram", xlab = "Samples", ylab = "Height", 
      nodePar = nodePar, edgePar = list(col = 2:3, lwd = 2:1), xlim = c(1, 19), ylim = c(0,9))
-
-
-
-
-
-
