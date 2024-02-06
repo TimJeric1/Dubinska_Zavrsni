@@ -25,7 +25,7 @@ sapply(data, function(x) sum(is.na(x)))
 # Izbacivanje svih redova sa nedostajućim vrijednostima (samo 1)
 data <- na.omit(data)
 
-
+data$Quality <- as.factor(data$Quality)
 
 
 # 1. Binarizacija
@@ -41,6 +41,7 @@ library(caret)
 library(class)
 
 # Dijeljenje podataka na testne i trening
+
 indexes = createDataPartition(data$Quality, p = 0.8, list = FALSE)
 data_train = data[indexes, ]
 data_test = data[-indexes, ]
@@ -59,7 +60,7 @@ test_target <- as.factor(test_target)
 # Perform k-nearest neighbors classification with k = 3
 predicted_classes <- knn(train = train_features, test = test_features, cl = train_target, k = 3)
 
-conf_matrix = confusionMatrix(factor(predicted_classes), test_target)
+conf_matrix = confusionMatrix(predicted_classes, test_target)
 conf_matrix
 
 mosaicplot(conf_matrix$table, main = "Confusion Matrix Mosaic Plot", 
@@ -73,7 +74,7 @@ library(caret)
 library(ipred)
 
 # Dijeljenje podataka na testne i trening
-data$Quality <- as.factor(data$Quality)
+
 indexes = createDataPartition(data$Quality, p = 0.8, list = FALSE)
 data_train = data[indexes, ]
 data_test = data[-indexes, ]
@@ -89,7 +90,7 @@ importance
 predicted_classes <- predict(bagged_model, newdata = test_features)
 #predicted_classes = ifelse(predicted_classes > 0.5 , 1, 0)
 # Evaluate the performance of the model
-conf_matrix = confusionMatrix(data = factor(predicted_classes), reference = factor(test_target))
+conf_matrix = confusionMatrix(data = predicted_classes, reference = test_target)
 conf_matrix
 
 mosaicplot(conf_matrix$table, main = "Confusion Matrix Mosaic Plot", 
